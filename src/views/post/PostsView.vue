@@ -1,0 +1,81 @@
+<template>
+  <div
+    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-sm sm:max-w-2xl lg:max-w-4xl mx-auto mt-10 transition"
+  >
+    <router-link
+      v-for="post in posts"
+      :key="post.postId"
+      class="bg-white rounded-lg shadow-md overflow-hidden transform transition-transform duration-300 hover:scale-105 hover:shadow-xl"
+      :to="{ name: 'post/id', params: { id: post.postId } }"
+    >
+      <div
+        v-if="post.thumbnail && post.thumbnail.storedFileName"
+        class="w-full aspect-video overflow-hidden"
+      >
+        <img
+          :src="`http://localhost:8080/resources/thumbnail/${post.thumbnail.storedFileName}`"
+          :alt="post.title + ' 썸네일'"
+          class="w-full"
+        />
+      </div>
+      <div
+        v-else
+        class="aspect-video w-full bg-gray-200 flex items-center justify-center text-gray-500"
+      >
+        <span class="text-sm">No Image</span>
+      </div>
+
+      <div class="p-4 flex flex-col flex-grow">
+        <h3 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+          {{ post.title }}
+        </h3>
+        <div class="text-sm text-gray-600 flex-grow">
+          <p>
+            조회수 {{ post.viewsCount.toLocaleString() }}회 •
+            {{ new Date(post.regDate).toLocaleDateString() }}
+          </p>
+        </div>
+      </div>
+    </router-link>
+
+    <div
+      v-if="posts.length === 0"
+      class="col-span-full text-center text-gray-500 p-8"
+    >
+      게시물이 없습니다.
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+interface Post {
+  postId: number;
+  title: string;
+  content: string;
+  img: string | null; // 이미지 URL 또는 null
+  regDate: number; // 타임스탬프 (밀리초)
+  updateDate: number; // 타임스탬프 (밀리초)
+  viewsCount: number;
+  thumbnail: Thumbnail;
+}
+
+interface Thumbnail {
+  postId: number;
+  fileName: string;
+  storedFileName: string; // 이미지의 실제 저장 경로 (백엔드 설정에 따라 웹 경로가 될 수도 있음)
+  fileType: string;
+  fileSize: number;
+  regDate: number; // 타임스탬프 (밀리초)
+}
+
+import { getPosts } from '@/api/post';
+import { ref } from 'vue';
+
+const posts = ref<Post[]>([]);
+
+const load = async () => {
+  posts.value = await getPosts();
+};
+
+load();
+</script>
