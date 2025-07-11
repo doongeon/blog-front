@@ -46,11 +46,14 @@
       </div>
 
       <div class="form-group w-full mt-10">
-        <textarea
-          class="w-full h-36 py-1 px-2 focus:outline-none border-b resize-none"
-          v-model="post.content"
-          placeholder="내용"
-        ></textarea>
+        <div class="prose" v-html="output"></div>
+        <div class="editor">
+          <textarea
+            class="w-full h-36 py-1 px-2 focus:outline-none border-t mt-5 pt-5 resize-none"
+            :value="post.content"
+            @input="update"
+          ></textarea>
+        </div>
       </div>
 
       <div class="flex flex-row justify-end mt-5">
@@ -75,8 +78,10 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue';
+import { marked } from 'marked';
+import debounce from 'lodash.debounce';
 import { createPost } from '@/api/post';
-import router from '@/router';
+import { useRouter } from 'vue-router';
 
 const post = reactive<{
   title: string;
@@ -84,14 +89,14 @@ const post = reactive<{
   content: string;
 }>({
   title: '',
-  content: '',
+  content: '## 여기서 수정해요',
   img: null,
 });
 
 const thumbnailUrl = ref('');
 const disableSubmit = computed(() => !post.title || !post.img || !post.content);
+const router = useRouter();
 
-// 파일 입력 변경을 처리하는 함수
 const handleFileChange = (event: Event) => {
   const target = event.target as HTMLInputElement;
   const file = target.files?.[0];
@@ -114,17 +119,29 @@ watch(post, () => {
   console.log('  ⚠️  : ', post);
 });
 
-const deleteFile = () => {
-  post.img = null;
-  thumbnailUrl.value = '';
-};
-
 const onSubmit = async () => {
   try {
     await createPost(post);
     router.push({ name: 'post' });
   } catch (e) {
+    alert('권한이 없습니다.');
     console.log('  ⚠️  : ', e);
   }
 };
+
+const deleteFile = () => {
+  post.img = null;
+  thumbnailUrl.value = '';
+};
+
+// computed 옵션의 'output'을 computed 속성으로 대체
+const output = computed(() => {
+  return marked(post.content);
+});
+
+// methods 옵션의 'update'를 함수로 정의하고 debounce 적용
+const update = debounce((e: Event) => {
+  const target = e.target as HTMLTextAreaElement; // 타입 단언
+  post.content = target.value;
+}, 100);
 </script>

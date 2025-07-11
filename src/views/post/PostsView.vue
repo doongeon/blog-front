@@ -1,4 +1,10 @@
 <template>
+  <div class="mt-10 max-w-xl mx-auto flex justify-center text-orange-600">
+    <router-link v-if="authStore.isLogin" :to="{ name: 'post/create' }"
+      ><i class="fa-solid fa-pen text-sm"></i>
+      <span class="font-medium"> 글쓰기</span></router-link
+    >
+  </div>
   <div
     class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-sm sm:max-w-2xl lg:max-w-4xl mx-auto mt-10 transition"
   >
@@ -6,7 +12,7 @@
       v-for="post in posts"
       :key="post.postId"
       class="bg-white rounded-lg shadow-md overflow-hidden transform transition-transform duration-300 hover:scale-105 hover:shadow-xl"
-      :to="{ name: 'post/id', params: { id: post.postId } }"
+      :to="{ name: 'post/detail', params: { id: post.postId } }"
     >
       <div
         v-if="post.thumbnail && post.thumbnail.storedFileName"
@@ -69,9 +75,11 @@ interface Thumbnail {
 }
 
 import { getPosts } from '@/api/post';
+import { useAuthStore } from '@/stores/auth';
 import { ref } from 'vue';
 
 const posts = ref<Post[]>([]);
+const authStore = useAuthStore();
 
 const load = async () => {
   posts.value = await getPosts();

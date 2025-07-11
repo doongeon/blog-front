@@ -35,9 +35,15 @@
           </div>
         </div>
         <hr class="text-gray-300 mt-5" />
-        <button type="submit" class="mx-auto" :disabled="disableSubmit">
-          로그인
-        </button>
+        <div class="w-full flex justify-center py-3">
+          <button
+            type="submit"
+            class="text-orange-600 font-bold cursor-pointer"
+            :disabled="disableSubmit"
+          >
+            로그인
+          </button>
+        </div>
         <div>
           <span>{{ error }}</span>
         </div>
@@ -53,7 +59,7 @@ import { useRoute, useRouter } from 'vue-router';
 
 const auth = useAuthStore();
 const router = useRouter();
-const route = useRoute();
+// const route = useRoute();
 
 const member = reactive({
   username: '',
@@ -67,13 +73,13 @@ const disableSubmit = computed(() => !(member.username && member.password));
 const login = async () => {
   try {
     await auth.login(member);
-    if (route.query.next) {
-      // 로그인 후 이동할 페이지가 있는 경우
-      router.push({ name: route.query.next });
-    } else {
-      // 일반 로그인
-      router.push('/');
-    }
+    // if (route.query.next) {
+    //   // 로그인 후 이동할 페이지가 있는 경우
+    //   router.push({ name: route.query.next });
+    // } else {
+    //   // 일반 로그인
+    // }
+    router.push('/');
   } catch {
     error.value = '올바르지 않은 정보입니다.';
   }
