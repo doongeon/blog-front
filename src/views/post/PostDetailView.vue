@@ -7,17 +7,26 @@
           new Date(post.regDate).toLocaleDateString()
         }}</span>
       </div>
-      <button
-        v-if="authStore.isLogin"
-        class="cursor-pointer"
-        @click="handleDelete(post.postId)"
-      >
-        <i class="fa-solid fa-xmark"></i>
-      </button>
+      <div>
+        <router-link
+          :to="{ name: 'post/update', params: { id: postId } }"
+          v-if="authStore.isLogin"
+          class="cursor-pointer mr-5 opacity-50"
+        >
+          <i class="fa-solid fa-pen-to-square"></i>
+        </router-link>
+        <button
+          v-if="authStore.isLogin"
+          class="cursor-pointer"
+          @click="handleDelete(post.postId)"
+        >
+          <i class="fa-solid fa-xmark opacity-50"></i>
+        </button>
+      </div>
     </div>
 
     <div
-      class="max-w-lg rounded-2xl overflow-hidden border border-gray-200 mx-auto mt-5"
+      class="max-w-lg rounded-2xl overflow-hidden border border-gray-200 mx-auto mt-5 shadow-lg"
     >
       <img
         :src="`http://localhost:8080/resources/thumbnail/${post.thumbnail.storedFileName}`"

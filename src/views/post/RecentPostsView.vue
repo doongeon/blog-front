@@ -5,9 +5,15 @@
       <span class="font-medium"> 글쓰기</span></router-link
     >
   </div>
-  <template v-for="(post, index) in posts" :key="post.postId">
-    <div class="max-w-xl mx-auto mt-7 p-5">
-      <div>
+
+  <RecentPostSkeleton v-if="isLoading" />
+  <div v-else>
+    <div
+      v-for="(post, index) in posts"
+      :key="post.postId"
+      class="max-w-lg min-h-[700px] mx-auto mt-7 p-5"
+    >
+      <div class="my-auto">
         <div class="mx-3 flex flex-row justify-between">
           <div class="flex flex-col">
             <span class="font-bold">{{ post.title }}</span>
@@ -15,47 +21,56 @@
               new Date(post.regDate).toLocaleDateString()
             }}</span>
           </div>
-          <button
-            v-if="authStore.isLogin"
-            class="cursor-pointer"
-            @click="handleDelete(post.postId)"
-          >
-            <i class="fa-solid fa-xmark"></i>
-          </button>
+          <div>
+            <router-link
+              :to="{ name: 'post/update', params: { id: post.postId } }"
+              v-if="authStore.isLogin"
+              class="cursor-pointer mr-5 opacity-50"
+            >
+              <i class="fa-solid fa-pen-to-square"></i>
+            </router-link>
+            <button
+              v-if="authStore.isLogin"
+              class="cursor-pointer opacity-50"
+              @click="handleDelete(post.postId)"
+            >
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
         </div>
         <div
-          class="w-full rounded-2xl overflow-hidden mt-3 border border-gray-200"
+          class="w-full rounded-2xl shadow-lg overflow-hidden mt-3 border border-gray-200"
         >
           <img
             :src="`http://localhost:8080/resources/thumbnail/${post.thumbnail.storedFileName}`"
+            loading="lazy"
           />
         </div>
         <div class="mt-3">
-          <span class="font-bold text-sm">views: </span>
-          <span class="text-sm">{{ post.viewsCount }}</span>
+          <div>
+            <span class="font-bold text-sm">views: </span>
+            <span class="text-sm">{{ post.viewsCount }}</span>
+          </div>
         </div>
         <MarkdownView :content="post.content" :post-id="post.postId" />
       </div>
-      <CommentsView :post-id="post.postId" />
+      <CommentsView class="mt-10" :post-id="post.postId" />
       <div v-if="index < posts.length - 1" class="bg-gray-300 h-px mt-5" />
     </div>
-  </template>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { getPosts, deletePost, type Post } from '@/api/post';
 import CommentsView from '@/components/CommentsView.vue';
 import { useAuthStore } from '@/stores/auth';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import MarkdownView from './MarkdownView.vue';
+import RecentPostSkeleton from './RecentPostSkeleton.vue';
 
 const authStore = useAuthStore();
-
 const posts = ref<Post[]>([]);
-
-const load = async () => {
-  posts.value = await getPosts();
-};
+const isLoading = ref(true);
 
 const handleDelete = async (postId: number) => {
   try {
@@ -65,5 +80,20 @@ const handleDelete = async (postId: number) => {
   } catch {}
 };
 
-load();
+const load = async () => {
+  isLoading.value = true;
+  const start = Date.now();
+  posts.value = await getPosts();
+  const elapsed = Date.now() - start;
+  const remain = 500 - elapsed;
+
+  setTimeout(
+    () => {
+      isLoading.value = false;
+    },
+    remain > 0 ? remain : 0
+  );
+};
+
+onMounted(load);
 </script>

@@ -16,11 +16,12 @@
       </div>
       <div class="form-group mt-5">
         <div
-          :class="`max-w- overflow-hidden bg-white shadow-lg flex items-center justify-center text-gray-500 relative mx-auto ${thumbnailUrl ? `` : 'aspect-square'}`"
+          :class="`max-w-lg rounded overflow-hidden bg-white shadow-lg flex items-center justify-center text-gray-500 relative mx-auto ${thumbnailUrl ? `` : 'aspect-square'}`"
         >
-          <p v-if="thumbnailUrl" class="max-w-md">
+          <p v-if="thumbnailUrl" class="max-w-lg">
             <img :src="thumbnailUrl" alt="썸네일 미리보기" />
           </p>
+
           <label
             v-else
             for="thumbnail"
