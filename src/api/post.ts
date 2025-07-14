@@ -35,12 +35,26 @@ const createPost = async (newPost: {
   await axios.post('/api/post', formData, { headers: headers });
 };
 
+const updatePost = async (newPost: {
+  postId: number;
+  title: string;
+  img: File | null;
+  content: string;
+}) => {
+  const formData = new FormData();
+  formData.append('postId', String(newPost.postId));
+  formData.append('title', newPost.title);
+  formData.append('content', newPost.content);
+  if (newPost.img) formData.append('img', newPost.img);
+  await axios.put('/api/post', formData, { headers: headers });
+};
+
 const getPosts = async () => {
   const { data } = await axios.get('/api/post');
   return data;
 };
 
-const getPost = async (postId: number) => {
+const getPost = async (postId: number): Promise<Post> => {
   const { data } = await axios.get(`/api/post/${postId}`);
   return data;
 };
@@ -50,4 +64,4 @@ const deletePost = async (postId: number) => {
   console.log('  ⚠️  : ', data);
 };
 
-export { createPost, getPosts, deletePost, getPost };
+export { getPost, getPosts, createPost, updatePost, deletePost };

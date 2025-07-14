@@ -29,6 +29,11 @@ const router = createRouter({
       component: () => import('../views/post/PostDetailView.vue'),
     },
     {
+      path: '/post/:id/update',
+      name: 'post/update',
+      component: () => import('../views/post/UpdatePostView.vue'),
+    },
+    {
       path: '/admin',
       name: 'admin',
       component: () => import('../views/LoginView.vue'),
